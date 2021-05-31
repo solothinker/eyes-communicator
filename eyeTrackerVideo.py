@@ -18,32 +18,37 @@ predictor = dlib.shape_predictor('shape_predictor_68_face_landmarks.dat')
 # Activating camera
 while(True):
     ret, img = vc.read()
-    img = cv2.flip(img,1)
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    rects = detector(gray, 1)
-    for i, rect in enumerate(rects):
-        pts = []
-        shape = predictor(gray,rect)
-        
-        for ii in eyes:
-            x,y = shape.part(ii).x,shape.part(ii).y
-            pts.append([x,y])
-        pts[2][0] = pts[1][0]
-        pts[3][0] = pts[0][0]
-        # fixing the window size
-        pts[0][1] = pts[1][1] = max(pts[0][1],pts[1][1])
-        pts[2][1] = pts[3][1] = max(pts[2][1],pts[3][1])
+    if ret:
+        img = cv2.flip(img,1)
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        rects = detector(gray, 1)
+        for i, rect in enumerate(rects):
+            pts = []
+            shape = predictor(gray,rect)
+            
+            for ii in eyes:
+                x,y = shape.part(ii).x,shape.part(ii).y
+                pts.append([x,y])
+            pts[2][0] = pts[1][0]
+            pts[3][0] = pts[0][0]
+            # fixing the window size
+            pts[0][1] = pts[1][1] = max(pts[0][1],pts[1][1])
+            pts[2][1] = pts[3][1] = max(pts[2][1],pts[3][1])
 
-        #Cropping the needful shape
-        img2 = img[pts[3][1]:pts[1][1],pts[0][0]:pts[1][0]]
-        img2 = cv2.resize(img2,(imgHeight,imgWidth))
-##        pts = np.array(pts,np.int32)
-##        img = cv2.polylines(img,[pts],True,(0,255,0),2)
+            #Cropping the needful shape
+            img2 = img[pts[3][1]:pts[1][1],pts[0][0]:pts[1][0]]
+            
+            b,a,_ = img2.shape
+            if a and b:
+                img2 = cv2.resize(img2,(imgHeight,imgWidth))
+                cv2.imshow('Eye Tracking',img2)
+    ##        pts = np.array(pts,np.int32)
+    ##        img = cv2.polylines(img,[pts],True,(0,255,0),2)
 
-        cv2.imshow('Eye Tracking',img2)
-    time.sleep(0.001)    
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
+            
+        time.sleep(0.001)    
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
 
 #closing the camera and windows
 vc.release()
