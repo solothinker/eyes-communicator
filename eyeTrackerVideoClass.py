@@ -14,7 +14,7 @@ class eyesRects:
         self.cv2 = cv2
         self.vc = self.cv2.VideoCapture(0,cv2.CAP_DSHOW)
         self.detector = dlib.get_frontal_face_detector()
-        self.img = np.random.randint(0,255,size=(imgHeight,imgWidth,3))
+        self.img = np.uint8(np.random.randint(0,255,size=(imgWidth,imgHeight,3)))
         self.predictor = dlib.shape_predictor('shape_predictor_68_face_landmarks.dat')
 
     def camCapture(self):

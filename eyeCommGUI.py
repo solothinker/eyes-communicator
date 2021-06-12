@@ -3,12 +3,13 @@ import os
 import cv2
 import dlib
 import time
+import threading
 import numpy   as np
 import tkinter as tk
 from PIL import Image, ImageTk
 ##from eyeTrackerVideoClass import eyesRects
 import eyeTrackerVideoClass
-
+count = 0
 class eyeComm(eyeTrackerVideoClass.eyesRects):
     def __init__(self,path='.\\'):
         eyeTrackerVideoClass.eyesRects.__init__(self)
@@ -28,6 +29,10 @@ class eyeComm(eyeTrackerVideoClass.eyesRects):
         self.width   = self.root.winfo_screenwidth()
         self.height  = self.root.winfo_screenheight()
         self.root.geometry('%sx%s' % (int(self.width/2), int(self.height/2)))
+        
+        self._btnState = 'Play'
+        self.playPauseBTN = tk.Button(self.root,text='Play',   command=self.playMe, bg='green',   width=self.wButton, height=self.hButton)
+        self.playPauseBTN.place( relx=0.5,  rely=1.0, anchor=tk.S )
 ##
 ##        self.btnLeft   = tk.Button(self.root,text="Left",   command=lambda: self.BottonPress(self.leftLookPath),   width=self.wButton, height=self.hButton)
 ##        self.btnCenter = tk.Button(self.root,text="Center", command=lambda: self.BottonPress(self.centerLookPath), width=self.wButton, height=self.hButton)
@@ -39,7 +44,17 @@ class eyeComm(eyeTrackerVideoClass.eyesRects):
 ##        self.btnRight.place(  relx=0.65, rely=1.0, anchor=tk.SE)
         self.imageLoad()
         
-        
+    def playMe(self):
+
+        if self.playPauseBTN['text'] == 'Stop':
+            self.playPauseBTN['text'] = 'Play'
+            self.playPauseBTN['bg'] = 'green'
+           
+        else:
+            self.playPauseBTN['text'] = 'Stop'
+            self.playPauseBTN['bg'] = 'red'
+            self.BottonPress()
+            
     def makingDir(self):
         # making Data directory
         if not self.os.path.isdir(self.path+'Data'):
@@ -63,6 +78,7 @@ class eyeComm(eyeTrackerVideoClass.eyesRects):
         
     def imageLoad(self):
         self.camCapture()
+##        print(self.img.dtype)
         cv2image = cv2.cvtColor(self.img, cv2.COLOR_BGR2RGBA)
         cv2image = Image.fromarray(cv2image)
         imgtk = ImageTk.PhotoImage(image=cv2image)
@@ -70,11 +86,22 @@ class eyeComm(eyeTrackerVideoClass.eyesRects):
         self.panel.config(image=imgtk)
         self.root.after(10, self.imageLoad)
         
-    def BottonPress(self,path): 
+    def BottonPress(self): 
         # saving the image data in Left folder when Left button press
-        path = path
-        print(path+'\\'+self.filename)
-        self.cv2.imwrite(path+'\\'+self.filename,self.img)
+        global count
+        print(count,'Bingo')
+        count += 1
+        
+        if count>=10:
+            self.root.after_cancel(self._btnState)
+            self.playMe()
+            count = 0
+        else:
+            self._btnState = self.root.after(30, self.BottonPress)
+        
+##        path = path
+##        print(path+'\\'+self.filename)
+##        self.cv2.imwrite(path+'\\'+self.filename,self.img)
       
     def destructor(self):
         self.root.destroy()
