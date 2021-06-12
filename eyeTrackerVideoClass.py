@@ -14,6 +14,7 @@ class eyesRects:
         self.cv2 = cv2
         self.vc = self.cv2.VideoCapture(0,cv2.CAP_DSHOW)
         self.detector = dlib.get_frontal_face_detector()
+        self.img = np.random.randint(0,255,size=(imgHeight,imgWidth,3))
         self.predictor = dlib.shape_predictor('shape_predictor_68_face_landmarks.dat')
 
     def camCapture(self):
@@ -43,7 +44,7 @@ class eyesRects:
                 b,a,_ = img2.shape
                 if a and b:
                     img2 = cv2.resize(img2,(imgHeight,imgWidth))
-                    cv2.imshow('Eye Tracking',img2)
+##                    cv2.imshow('Eye Tracking',img2)
                     self.img = img2
                     ts = datetime.datetime.now()
                     self.filename = "{}.jpg".format(ts.strftime("%Y-%m-%d_%H-%M-%S"))
